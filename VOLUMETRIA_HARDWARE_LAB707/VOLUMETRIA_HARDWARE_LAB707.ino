@@ -10,6 +10,7 @@
 // Libraries
 #include <ArduinoLowPower.h>
 
+// Sensors Pins
 const int relay_pin = RELAY_PIN;
 
 // Constants de calculate de Volume
