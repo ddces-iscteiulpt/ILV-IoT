@@ -10,38 +10,35 @@
 // Libraries
 #include <ArduinoLowPower.h>
 
-// Sensors Pins
-const int relay_pin = RELAY_PIN;
+// Sensors Pins Relays
+const int relay_pin_arr[] = RELAY_PIN_LINE;
 
 // Constants de calculate de Volume
-const float max_length = MAX_LENGTH;          // comprimento em cm
-const float max_width = MAX_WIDTH;            // largura em cm
-const float max_height = MAX_HEIGHT;          // altura em cm
-const int n_sensors = N_SENSORS;
-const float time_msg = TIME_MSG;              // tempo entre mensagens em minutos
-const double max_volume = (max_length * max_width * max_height); /// 1000000;      //Volume total da caixa em vazio (m3)
-const double cell_area = (max_length/2) * (max_width/2);           //Area de cada celula (cm2)
+const float max_length = MAX_LENGTH;                                          // comprimento em cm
+const float max_width = MAX_WIDTH;                                            // largura em cm
+const float max_height = MAX_HEIGHT;                                          // altura em cm
+const double max_volume = max_length * max_width * max_height;                // Volume total da caixa em vazio (cm3)
+const double cell_area = (max_length / N_LINES) * (max_width / N_CELLS_LINE); // Area de cada celula (cm2)
+const int n_sensors = N_SENSORS;                                              // Numero de sensores
+const float time_msg = TIME_MSG;                                              // tempo entre mensagens em minutos
+
 
 void setup() {
-  Serial.begin(115200);   // Initialize Serial port
-  Wire.begin();           // Initialize Wire library
-  Serial.println("*******");
-  pinMode(relay_pin, OUTPUT);
+  Serial.begin(115200);                                                       // Initialize Serial port
+  Wire.begin();
+  for (int i = 0; i < sizeof(relay_pin_arr); i++) { pinMode(relay_pin_arr[i], OUTPUT); }
 
-  wifi_connection();
+  //wifi_connection();
 
   //mqtt_connection();
   //mqttClient.beginMessage(topic);
-  digitalWrite(relay_pin, HIGH);
+  digitalWrite(relay_pin_arr[0], HIGH);
   delay(1000);
-  
+  create_TF_addresses();
   for (int i = 0; i < n_sensors; i++) {
     setup_TF_sensor(addr_array[i]);
     delay(1000);
   }
-  
-  delay(1000);
-  Serial.println("*******");
 }
 
 void loop() {
@@ -55,7 +52,7 @@ void loop() {
     if (wifi_rec = true) {
       Serial.println("Reconnected to Wi-Fi!");
       //mqtt_connection();
-      digitalWrite(relay_pin, HIGH);
+      digitalWrite(relay_pin_arr[0], HIGH);
       delay(1000);
 
       for (int i = 0; i < n_sensors; i++)
@@ -80,7 +77,7 @@ void loop() {
         volume_array[i] = get_measure_TF_sensor(addr_array[i], i);
         delay(1000);
       }
-      digitalWrite(relay_pin, LOW);
+      digitalWrite(relay_pin_arr[0], LOW);
       float sum_height = 0; // some of all heights
       for (int i = 0; i < n_sensors; ++i)
       {

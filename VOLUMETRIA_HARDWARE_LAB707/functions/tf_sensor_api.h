@@ -9,11 +9,22 @@ uint16_t tfFrame = 200;
 uint8_t tfCode[14]; // device serial number
 
 // Configuração de Sensores TF-LUNA
-int16_t addr_array[N_SENSORS] = {0x10, 0x18, 0x19, 0x20, 0x24, 0x33, 0x36, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x21, 0x22, 0x23, 0x30};
+//int16_t addr_array[N_SENSORS] = {0x10, 0x18, 0x19, 0x20, 0x24, 0x33, 0x36, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x21, 0x22, 0x23, 0x30};
+int16_t addr_array[N_SENSORS] = {0};
 int16_t tfDist_array[N_SENSORS] = {0};
 int16_t tfFlux_array[N_SENSORS] = {0};
 int16_t tfTemp_array[N_SENSORS] = {0};
 float volume_array[N_SENSORS] = {0};
+
+void create_TF_addresses()
+{
+    int16_t addr = tfAddr + 1;
+    for (int i = 0; i < N_SENSORS; i++) {
+        addr_array[i] = addr;
+        // Serial.println("TF-Luna address " + String(i) + ": " + String(addr_array[i]));
+        addr = addr + 1;
+    }
+}
 
 void setup_TF_sensor(uint16_t adr)
 {    
@@ -56,7 +67,6 @@ void setup_TF_sensor(uint16_t adr)
         return;
     }
 }
-
 
 int16_t get_measure_TF_sensor(uint16_t adr, int i)
 {
