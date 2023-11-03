@@ -4,15 +4,15 @@
 // Functions
 #include "functions\network\wifi_api.h"
 #include "functions\network\mqtt_api.h"
+#include "functions\network\ota_api.h"
 #include "functions\tf_sensor_api.h"
 #include "functions\json_api.h"
 #include "functions\encryption_api.h"
 // Libraries
-#include <ArduinoLowPower.h>
 
 // Sensors Pins
 const int relay_pin = RELAY_PIN;
-
+#define BUTTON_PIN 10
 // Constants de calculate de Volume
 const float max_length = MAX_LENGTH;          // comprimento em cm
 const float max_width = MAX_WIDTH;            // largura em cm
@@ -24,7 +24,7 @@ const double cell_area = (max_length/2) * (max_width/2);           //Area de cad
 
 void setup() {
   Serial.begin(115200);   // Initialize Serial port
-  Wire.begin();           // Initialize Wire library
+  //Wire.begin();           // Initialize Wire library
   Serial.println("*******");
   pinMode(relay_pin, OUTPUT);
 
@@ -36,12 +36,13 @@ void setup() {
   delay(1000);
   
   for (int i = 0; i < n_sensors; i++) {
-    setup_TF_sensor(addr_array[i]);
+    //setup_TF_sensor(addr_array[i]);
     delay(1000);
   }
   
   delay(1000);
   Serial.println("*******");
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
 }
 
 void loop() {
@@ -54,6 +55,12 @@ void loop() {
     }
     if (wifi_rec = true) {
       Serial.println("Reconnected to Wi-Fi!");
+      int buttonState = digitalRead(BUTTON_PIN);
+      Serial.println(buttonState);
+      if (buttonState == true)
+      {
+        create_ota_server();
+      }
       //mqtt_connection();
       digitalWrite(relay_pin, HIGH);
       delay(1000);
@@ -61,7 +68,7 @@ void loop() {
       for (int i = 0; i < n_sensors; i++)
       {
         Serial.println("...");
-        Serial.print("Get Serial Number " + String(addr_array[i]) + ": ");
+        //Serial.print("Get Serial Number " + String(addr_array[i]) + ": ");
         /*
         if (tflI2C.Get_Prod_Code(tfCode, addr_array[i]))
         {
@@ -77,14 +84,14 @@ void loop() {
         }
         */
         delay(200);
-        volume_array[i] = get_measure_TF_sensor(addr_array[i], i);
+        //volume_array[i] = get_measure_TF_sensor(addr_array[i], i);
         delay(1000);
       }
       digitalWrite(relay_pin, LOW);
       float sum_height = 0; // some of all heights
       for (int i = 0; i < n_sensors; ++i)
       {
-        sum_height += volume_array[i];
+        //sum_height += volume_array[i];
       }
       Serial.println("\n##########");
       double free_volume = (cell_area * sum_height);
@@ -94,21 +101,21 @@ void loop() {
       Serial.println("Volume ocupado = " + String(full_volume) + " %");
       Serial.println("##########");
 
-      String encryptedVolume = encrypt(String(full_volume), xor_key);
-      Serial.println("Encrypted: " + encryptedVolume);
+      //String encryptedVolume = encrypt(String(full_volume), xor_key);
+      //Serial.println("Encrypted: " + encryptedVolume);
       /*
       while (reconnection_mqtt())
       {
         reconnection_mqtt();
       }
       */
-      mqttClient.loop(); // Maintain the MQTT connection
+      //mqttClient.loop(); // Maintain the MQTT connection
       String sensor_name = "Sensor_test_01";
       String msg_t = String(full_volume);
       //send_message_mqtt(create_json_message(sensor_name, String(free_volume), String(full_volume), encryptedVolume, volume_array, n_sensors));
       delay(1000);
-      WiFi.end();
+      //WiFi.end();
     }
     //LowPower.deepSleep(TIME_MSG * 60 * 1000);
-    delay(TIME_MSG * 60 * 1000);
+    delay(TIME_MSG * 1000);
 }

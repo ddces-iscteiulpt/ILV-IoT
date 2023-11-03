@@ -1,0 +1,6 @@
+
+*.bin
+
+VOLUMETRIA_HARDWARE_LAB707/library/ArduinoJson-6.21.3.zip
+
+VOLUMETRIA_HARDWARE_LAB707/library/PubSubClient-2.8.0.zip

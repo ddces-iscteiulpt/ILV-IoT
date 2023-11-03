@@ -1,23 +1,24 @@
 // #ifndef WIFI_COMMUNICATION_H
 // #define WIFI_COMMUNICATION_H
 
-#include <WiFiNINA.h>
+#include <WiFi.h>
 #include "..\..\SECRETS\secret.h"
-
+//#include "/path/to/your/library/library.h"
 // Network Wi-Fi Info
-const char *ssid = SECRET_SSID;
-const char *password = SECRET_PASS;
+const char* ssid = SECRET_SSID;
+const char* password = SECRET_PASS;
 byte mac[6];
 
 void wifi_connection() // Wi-Fi Connection
 {
     Serial.println(WiFi.status());
-    if (WiFi.status() == WL_NO_MODULE)
+    /*    if (WiFi.status() != WL_CONNECTED)
     {
         Serial.println("Communication with WiFi module failed!");
         delay(10000);
         NVIC_SystemReset(); // Reset the Arduino
-    }
+    }*/
+
     int i = 0;
     Serial.println("Connecting to WiFi: ");
     while (WiFi.begin(ssid, password) != WL_CONNECTED)
@@ -32,7 +33,7 @@ void wifi_connection() // Wi-Fi Connection
     if (WiFi.status() != WL_CONNECTED)
     {
         Serial.println("\nFailed to connect to Wi-Fi!");
-        NVIC_SystemReset(); // Reset the Arduino
+        //NVIC_SystemReset(); // Reset the Arduino
     }
     Serial.println("\nConnected to Wi-Fi!");
     Serial.print("IP Address: ");

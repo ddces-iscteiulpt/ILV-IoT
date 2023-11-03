@@ -1,5 +1,4 @@
 #include <ArduinoJson.h>
-
 String create_json_message(String sensor, String volume, String percentage, String encrypted_msg, const float volume_array[], int array_size)
 {
     // Create a JSON object using the ArduinoJson library
