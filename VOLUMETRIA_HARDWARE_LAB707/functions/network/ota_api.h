@@ -3,13 +3,14 @@
 #include <WebServer.h>
 #include <ESPmDNS.h>
 #include <Update.h>
+
 #include "..\..\SECRETS\secret.h"
 
 const char* host = "esp32";
 //const char* ssid_ota = SECRET_SSID;
 //const char* password_ota = SECRET_PASS;
 
-WebServer server(5000);
+WebServer server(80);
 
 /*
  * Login page
@@ -19,12 +20,13 @@ const char *loginIndex =
     "<table width='20%' bgcolor='A09F9F' align='center'>"
     "<tr>"
     "<td colspan=2>"
-    "<center><font size=4><b>ESP32 Login Page</b></font></center>"
+    "<center><font size=4><b>OTA Login Page</b></font></center>"
     "<br>"
     "</td>"
     "<br>"
     "<br>"
     "</tr>"
+    "<tr>"
     "<td>Username:</td>"
     "<td><input type='text' size=25 name='userid'><br></td>"
     "</tr>"
@@ -39,8 +41,11 @@ const char *loginIndex =
     "<tr>"
     "<td><input type='submit' onclick='check(this.form)' value='Login'></td>"
     "</tr>"
+    "<tr>"
+    "</tr>"
     "</table>"
     "</form>"
+    "<td><button onclick='window.location.replace(\"/restart\")'>Restart</button></td>"
     "<script>"
     "function check(form)"
     "{"
@@ -102,25 +107,7 @@ const char *serverIndex =
 
 void create_ota_server()
 {
-    //Serial.begin(115200);
-
-    // // Connect to WiFi network
-    // WiFi.begin(ssid_ota, password_ota);
-    // Serial.println("");
-
-    // // Wait for connection
-    // while (WiFi.status() != WL_CONNECTED)
-    // {
-    //     delay(500);
-    //     Serial.print(".");
-    // }
-    // Serial.println("");
-    // Serial.print("Connected to ");
-    // Serial.println(ssid_ota);
-    
-    Serial.print("IP address: ");
-    Serial.println(WiFi.localIP());
-
+    Serial.println("Starting OTA Server");
     /*use mdns for host name resolution*/
     if (!MDNS.begin(host))
     { // http://esp32.local
@@ -136,14 +123,14 @@ void create_ota_server()
               {
     server.sendHeader("Connection", "close");
     server.send(200, "text/html", loginIndex); });
+    /*handling uploading firmware file */
     server.on("/serverIndex", HTTP_GET, []()
               {
     server.sendHeader("Connection", "close");
     server.send(200, "text/html", serverIndex); });
     /*handling uploading firmware file */
-    server.on(
-        "/update", HTTP_POST, []()
-        {
+    server.on("/update", HTTP_POST, []()
+            {
     server.sendHeader("Connection", "close");
     server.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
     ESP.restart(); },
@@ -178,6 +165,14 @@ void create_ota_server()
                 }
             }
         });
+    server.on("/restart", HTTP_GET, []()
+              {
+                  server.sendHeader("Connection", "close");
+                  server.send(200, "text/plain", "Restarting...");
+                  server.client().stop(); // Close the connection before restarting
+                  delay(1000);            // Add a small delay to allow the response to be sent
+                  ESP.restart();          // Restart the ESP32
+              });    
     server.begin();
 
     while (true)

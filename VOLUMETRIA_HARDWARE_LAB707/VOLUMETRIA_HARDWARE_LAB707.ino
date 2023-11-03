@@ -5,9 +5,9 @@
 #include "functions\network\wifi_api.h"
 #include "functions\network\mqtt_api.h"
 #include "functions\network\ota_api.h"
-#include "functions\tf_sensor_api.h"
+#include "functions\tf_sensor_api.h"  ////
 #include "functions\json_api.h"
-#include "functions\encryption_api.h"
+#include "functions\encryption_api.h" ////
 // Libraries
 
 // Sensors Pins
@@ -57,7 +57,7 @@ void loop() {
       Serial.println("Reconnected to Wi-Fi!");
       int buttonState = digitalRead(BUTTON_PIN);
       Serial.println(buttonState);
-      if (buttonState == true)
+      if (buttonState == false)
       {
         create_ota_server();
       }

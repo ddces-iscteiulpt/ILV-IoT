@@ -2,8 +2,9 @@
 // #define WIFI_COMMUNICATION_H
 
 #include <WiFi.h>
+#include <HTTPClient.h>
 #include "..\..\SECRETS\secret.h"
-//#include "/path/to/your/library/library.h"
+
 // Network Wi-Fi Info
 const char* ssid = SECRET_SSID;
 const char* password = SECRET_PASS;
@@ -51,6 +52,24 @@ void wifi_connection() // Wi-Fi Connection
     Serial.print(mac[1], HEX);
     Serial.print(":");
     Serial.println(mac[0], HEX);
+    Serial.print("Gateway: ");
+    Serial.println(WiFi.gatewayIP());
+    HTTPClient http;
+    http.begin("http://ipinfo.io/ip");
+    int httpCode = http.GET();
+    if (httpCode > 0)
+    {
+        if (httpCode == HTTP_CODE_OK)
+        {
+            String response = http.getString();
+            Serial.println("External IP address: " + response);
+        }
+    }
+    else
+    {
+        Serial.println("Error getting IP address");
+    }
+    http.end();
 } //////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool wifi_reconnection() {
